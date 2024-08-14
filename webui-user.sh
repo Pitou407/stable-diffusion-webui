@@ -31,13 +31,15 @@
 #export REQS_FILE="requirements_versions.txt"
 
 # Fixed git repos
-#export K_DIFFUSION_PACKAGE=""
+#export K_DIFFUSION_PACKAGE="https://github.com/brkirch/k-diffusion.git"
 #export GFPGAN_PACKAGE=""
+#export K_DIFFUSION_REPO="https://github.com/brkirch/k-diffusion.git"
 
 # Fixed git commits
-#export STABLE_DIFFUSION_COMMIT_HASH=""
-#export CODEFORMER_COMMIT_HASH=""
-#export BLIP_COMMIT_HASH=""
+#export STABLE_DIFFUSION_COMMIT_HASH="51c9778f269cedb55a4d88c79c0246d35bdadb71"
+#export CODEFORMER_COMMIT_HASH="51c9778f269cedb55a4d88c79c0246d35bdadb71"
+#export BLIP_COMMIT_HASH="51c9778f269cedb55a4d88c79c0246d35bdadb71"
+#export K_DIFFUSION_COMMIT_HASH="51c9778f269cedb55a4d88c79c0246d35bdadb71"
 
 # Uncomment to enable accelerated launch
 #export ACCELERATE="True"

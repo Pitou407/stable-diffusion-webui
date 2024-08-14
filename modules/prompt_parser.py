@@ -268,7 +268,7 @@ def get_multicond_learned_conditioning(model, prompts, steps, hires_steps=None, 
 
 
 class DictWithShape(dict):
-    def __init__(self, x, shape=None):
+    def __init__(self, x, shape):
         super().__init__()
         self.update(x)
 

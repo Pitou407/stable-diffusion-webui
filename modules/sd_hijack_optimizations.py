@@ -486,8 +486,7 @@ def xformers_attention_forward(self, x, context=None, mask=None, **kwargs):
     k_in = self.to_k(context_k)
     v_in = self.to_v(context_v)
 
-    q, k, v = (t.reshape(t.shape[0], t.shape[1], h, -1) for t in (q_in, k_in, v_in))
-
+    q, k, v = (rearrange(t, 'b n (h d) -> b n h d', h=h) for t in (q_in, k_in, v_in))
     del q_in, k_in, v_in
 
     dtype = q.dtype
@@ -498,8 +497,7 @@ def xformers_attention_forward(self, x, context=None, mask=None, **kwargs):
 
     out = out.to(dtype)
 
-    b, n, h, d = out.shape
-    out = out.reshape(b, n, h * d)
+    out = rearrange(out, 'b n h d -> b n (h d)', h=h)
     return self.to_out(out)
 
 

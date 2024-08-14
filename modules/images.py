@@ -54,14 +54,11 @@ def image_grid(imgs, batch_size=1, rows=None):
     params = script_callbacks.ImageGridLoopParams(imgs, cols, rows)
     script_callbacks.image_grid_callback(params)
 
-    w, h = map(max, zip(*(img.size for img in imgs)))
-    grid_background_color = ImageColor.getcolor(opts.grid_background_color, 'RGB')
-    grid = Image.new('RGB', size=(params.cols * w, params.rows * h), color=grid_background_color)
+    w, h = imgs[0].size
+    grid = Image.new('RGB', size=(params.cols * w, params.rows * h), color='black')
 
     for i, img in enumerate(params.imgs):
-        img_w, img_h = img.size
-        w_offset, h_offset = 0 if img_w == w else (w - img_w) // 2, 0 if img_h == h else (h - img_h) // 2
-        grid.paste(img, box=(i % params.cols * w + w_offset, i // params.cols * h + h_offset))
+        grid.paste(img, box=(i % params.cols * w, i // params.cols * h))
 
     return grid
 
@@ -380,7 +377,6 @@ def get_sampler_scheduler(p, sampler):
 
 class FilenameGenerator:
     replacements = {
-        'basename': lambda self: self.basename or 'img',
         'seed': lambda self: self.seed if self.seed is not None else '',
         'seed_first': lambda self: self.seed if self.p.batch_size == 1 else self.p.all_seeds[0],
         'seed_last': lambda self: NOTHING_AND_SKIP_PREVIOUS_TEXT if self.p.batch_size == 1 else self.p.all_seeds[-1],
@@ -417,13 +413,12 @@ class FilenameGenerator:
     }
     default_time_format = '%Y%m%d%H%M%S'
 
-    def __init__(self, p, seed, prompt, image, zip=False, basename=""):
+    def __init__(self, p, seed, prompt, image, zip=False):
         self.p = p
         self.seed = seed
         self.prompt = prompt
         self.image = image
         self.zip = zip
-        self.basename = basename
 
     def get_vae_filename(self):
         """Get the name of the VAE file."""
@@ -611,10 +606,9 @@ def save_image_with_geninfo(image, geninfo, filename, extension=None, existing_p
                     piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(geninfo or "", encoding="unicode")
                 },
             })
-        else:
-            exif_bytes = None
 
-        image.save(filename,format=image_format, quality=opts.jpeg_quality, exif=exif_bytes)
+
+        image.save(filename,format=image_format, exif=exif_bytes)
     elif extension.lower() == ".gif":
         image.save(filename, format=image_format, comment=geninfo)
     else:
@@ -654,12 +648,12 @@ def save_image(image, path, basename, seed=None, prompt=None, extension='png', i
         txt_fullfn (`str` or None):
             If a text file is saved for this image, this will be its full path. Otherwise None.
     """
-    namegen = FilenameGenerator(p, seed, prompt, image, basename=basename)
+    namegen = FilenameGenerator(p, seed, prompt, image)
 
     # WebP and JPG formats have maximum dimension limits of 16383 and 65535 respectively. switch to PNG which has a much higher limit
     if (image.height > 65535 or image.width > 65535) and extension.lower() in ("jpg", "jpeg") or (image.height > 16383 or image.width > 16383) and extension.lower() == "webp":
         print('Image dimensions too large; saving as PNG')
-        extension = "png"
+        extension = ".png"
 
     if save_to_dirs is None:
         save_to_dirs = (grid and opts.grid_save_to_dirs) or (not grid and opts.save_to_dirs and not no_prompt)
@@ -795,10 +789,7 @@ def read_info_from_image(image: Image.Image) -> tuple[str | None, dict]:
         if exif_comment:
             geninfo = exif_comment
     elif "comment" in items: # for gif
-        if isinstance(items["comment"], bytes):
-            geninfo = items["comment"].decode('utf8', errors="ignore")
-        else:
-            geninfo = items["comment"]
+        geninfo = items["comment"].decode('utf8', errors="ignore")
 
     for field in IGNORED_INFO_KEYS:
         items.pop(field, None)

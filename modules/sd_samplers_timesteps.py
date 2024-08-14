@@ -10,7 +10,6 @@ import modules.shared as shared
 
 samplers_timesteps = [
     ('DDIM', sd_samplers_timesteps_impl.ddim, ['ddim'], {}),
-    ('DDIM CFG++', sd_samplers_timesteps_impl.ddim_cfgpp, ['ddim_cfgpp'], {}),
     ('PLMS', sd_samplers_timesteps_impl.plms, ['plms'], {}),
     ('UniPC', sd_samplers_timesteps_impl.unipc, ['unipc'], {}),
 ]

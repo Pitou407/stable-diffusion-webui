@@ -1,11 +1,7 @@
 import importlib
 
-
-always_true_func = lambda *args, **kwargs: True
-
-
 class CondFunc:
-    def __new__(cls, orig_func, sub_func, cond_func=always_true_func):
+    def __new__(cls, orig_func, sub_func, cond_func):
         self = super(CondFunc, cls).__new__(cls)
         if isinstance(orig_func, str):
             func_path = orig_func.split('.')
